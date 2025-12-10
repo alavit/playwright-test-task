@@ -38,6 +38,68 @@ The project follows the Page Object Model (POM) design pattern:
   - `test-data.ts`: Central export for data generation.
 - **`models/`**: TypeScript interfaces defining the data structures (e.g., `OwnerDto`, `PetDto`).
 
+## Architecture Diagram
+
+```mermaid
+classDiagram
+    %% Core Playwright
+    class Page {
+        <<Playwright>>
+    }
+
+    %% Data Models
+    class OwnerDto {
+        <<Interface>>
+        +firstName: string
+        +lastName: string
+        +address: string
+        +city: string
+        +telephone: string
+    }
+
+    %% Pages (POM)
+    class BasePage {
+        #page: Page
+        +goto(url)
+    }
+
+    class AddOwnerPage {
+        +addOwner(owner: OwnerDto)
+    }
+
+    class FindOwnersPage {
+        +search(lastName)
+    }
+
+    BasePage <|-- AddOwnerPage
+    BasePage <|-- FindOwnersPage
+    BasePage --> Page : wraps
+
+    %% Utilities & Builders
+    class OwnerBuilder {
+        -owner: OwnerDto
+        +withFirstName(name)
+        +withLastName(name)
+        +build(): OwnerDto
+    }
+
+    class TestData {
+        <<Utility>>
+        +generateOwner()
+    }
+
+    OwnerBuilder ..> OwnerDto : creates
+    TestData ..> OwnerBuilder : uses
+
+    %% Test Specifications
+    class OwnerTests {
+        <<Spec>>
+    }
+
+    OwnerTests ..> AddOwnerPage : uses
+    OwnerTests ..> TestData : uses
+```
+
 ## Running Tests
 
 The configuration is set up to automatically start the backend server before running the tests.
