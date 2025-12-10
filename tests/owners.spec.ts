@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { FindOwnersPage } from '../pages/FindOwnersPage';
 import { AddOwnerPage } from '../pages/AddOwnerPage';
 import { OwnerInformationPage } from '../pages/OwnerInformationPage';
-import { generateOwner } from '../utils/test-data';
+import { generateOwner, OwnerBuilder } from '../utils/test-data';
 
 test.describe('Owner Management', () => {
     let findOwnersPage: FindOwnersPage;
@@ -15,48 +15,55 @@ test.describe('Owner Management', () => {
         ownerInformationPage = new OwnerInformationPage(page);
     });
 
-    test('should find an owner by last name', async ({}) => {
-        await findOwnersPage.goto();
-        // Assuming 'Davis' exists in the seeded data or we add one first.
-        // For complete isolation, we should probably add an owner first.
+    test('should add a new owner', async ({ }) => {
         const newOwner = generateOwner();
         await addOwnerPage.goto();
         await addOwnerPage.addOwner(newOwner);
 
-        await findOwnersPage.goto();
-        await findOwnersPage.searchOwner(newOwner.lastName);
-        await expect(findOwnersPage.ownersTable).toContainText(newOwner.lastName);
-    });
-
-    test('should show error when finding non-existent owner (Negative Case)', async ({}) => {
-        await findOwnersPage.goto();
-        await findOwnersPage.searchOwner('NonExistentUser12345');
-        await expect(findOwnersPage.notFoundMessage).toBeVisible();
-    });
-
-    test('should add a new owner successfully (Happy Path)', async ({}) => {
-        const newOwner = generateOwner();
-        await addOwnerPage.goto();
-        await addOwnerPage.addOwner(newOwner);
-
-        // Verification - usually redirects to owner details
-        // Verification - usually redirects to owner details
-        await expect(ownerInformationPage.ownerInformationHeader).toBeVisible();
-        // Use first table for Owner Information
+        await expect(ownerInformationPage.messageOnwerCreated).toBeVisible();
         await expect(ownerInformationPage.ownerInfoTable).toContainText(newOwner.firstName);
         await expect(ownerInformationPage.ownerInfoTable).toContainText(newOwner.lastName);
     });
 
-    test('should validation error for required fields when adding owner (Edge Case)', async ({}) => {
+    test('should be validation error when adding owner with empty name', async ({ page }) => {
         await addOwnerPage.goto();
-        // Click add without filling anything
-        await addOwnerPage.addOwnerBtn.click();
+        const ownerWithEmptyName = new OwnerBuilder().withFirstName('').build();
 
-        // Expect validation errors (Assuming HTML5 validation or app specific)
-        // For HTML5 validation, simple check might be tricky without specific robust util, 
-        // but let's assume the app shows some error text or keeps on same page.
-        await expect(addOwnerPage.addOwnerBtn).toBeVisible();
-        // If specific error messages appear:
-        // await expect(page.locator('.help-block')).toContainText('must not be empty');
+        await addOwnerPage.addOwner(ownerWithEmptyName);
+
+        await expect(page).toHaveURL('/owners/new');
+        await expect(addOwnerPage.validationErrorEmptyName).toBeVisible();
+    });
+
+    test('should be validation error when adding owner with phone number less than 10 digits', async ({ page }) => {
+        await addOwnerPage.goto();
+        const ownerWithShortPhone = new OwnerBuilder().withTelephone('123').build();
+
+        await addOwnerPage.addOwner(ownerWithShortPhone);
+
+        await expect(page).toHaveURL('/owners/new');
+        await expect(addOwnerPage.validationErrorShortPhone).toBeVisible();
+    });
+
+    test('should find an owner by last name', async ({ }) => {
+        await findOwnersPage.goto();
+
+        // Generate and add new owner
+        const newOwner = generateOwner();
+        await addOwnerPage.goto();
+        await addOwnerPage.addOwner(newOwner);
+
+        await findOwnersPage.goto();
+        await findOwnersPage.findOwner(newOwner.lastName);
+
+        await expect(findOwnersPage.ownersTable).toContainText(newOwner.lastName);
+    });
+
+    test('should show error when finding non-existent owner', async ({ }) => {
+        await findOwnersPage.goto();
+
+        await findOwnersPage.findOwner('NonExistentUser12345');
+
+        await expect(findOwnersPage.notFoundMessage).toBeVisible();
     });
 });

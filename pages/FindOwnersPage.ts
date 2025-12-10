@@ -1,4 +1,4 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { Page, Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
 
 export class FindOwnersPage extends BasePage {
@@ -14,14 +14,15 @@ export class FindOwnersPage extends BasePage {
         this.findOwnerBtn = page.getByRole('button', { name: 'Find Owner' });
         this.addOwnerBtn = page.getByRole('link', { name: 'Add Owner' });
         this.ownersTable = page.locator('table.table-striped').first();
-        this.notFoundMessage = page.getByText('has not been found');
+        this.notFoundMessage = page.locator('.help-inline').filter({ hasText: 'has not been found' });
     }
 
     async goto() {
-        await this.navigateTo('/owners/find');
+        await this.navigateTo('/');
+        await this.findOwnersLink.click();
     }
 
-    async searchOwner(lastName: string) {
+    async findOwner(lastName: string) {
         await this.lastNameInput.fill(lastName);
         await this.findOwnerBtn.click();
     }

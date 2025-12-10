@@ -1,25 +1,22 @@
-import { faker } from '@faker-js/faker';
 import { OwnerDto } from '../models/OwnerDto';
 import { PetDto } from '../models/PetDto';
 import { VisitDto } from '../models/VisitDto';
+import { OwnerBuilder } from './OwnerBuilder';
+import { PetBuilder } from './PetBuilder';
+import { VisitBuilder } from './VisitBuilder';
 
-import { PetType } from '../models/PetType';
+export * from './OwnerBuilder';
+export * from './PetBuilder';
+export * from './VisitBuilder';
 
-export const generateOwner = (): OwnerDto => ({
-    firstName: faker.person.firstName(),
-    lastName: faker.person.lastName(),
-    address: faker.location.streetAddress(),
-    city: faker.location.city(),
-    telephone: faker.string.numeric(10),
-});
+export const generateOwner = (): OwnerDto => {
+    return new OwnerBuilder().build();
+};
 
-export const generatePet = (ownerName: string): PetDto => ({
-    name: `${faker.animal.type()}_${faker.string.alpha(5)}`,
-    birthDate: faker.date.past().toISOString().split('T')[0],
-    type: faker.helpers.enumValue(PetType),
-});
+export const generatePet = (): PetDto => {
+    return new PetBuilder().build();
+};
 
-export const generateVisit = (): VisitDto => ({
-    date: faker.date.future().toISOString().split('T')[0],
-    description: faker.lorem.sentence(),
-});
+export const generateVisit = (): VisitDto => {
+    return new VisitBuilder().build();
+};

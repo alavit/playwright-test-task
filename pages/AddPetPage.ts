@@ -7,7 +7,10 @@ export class AddPetPage extends BasePage {
     readonly birthDateInput: Locator;
     readonly typeSelect: Locator;
     readonly addPetBtn: Locator;
-    readonly duplicateError: Locator;
+    readonly helpInline: Locator;
+    readonly errorPetDuplicate: Locator;
+    readonly errorIsRequired: Locator;
+    readonly errorPetHasInvalidBirthdate: Locator;
 
     constructor(page: Page) {
         super(page);
@@ -15,7 +18,10 @@ export class AddPetPage extends BasePage {
         this.birthDateInput = page.locator('#birthDate');
         this.typeSelect = page.locator('#type');
         this.addPetBtn = page.getByRole('button', { name: 'Add Pet' });
-        this.duplicateError = page.getByText('is already in use');
+        this.helpInline = page.locator('.help-inline');
+        this.errorPetDuplicate = this.helpInline.filter({ hasText: 'is already in use' });
+        this.errorIsRequired = this.helpInline.filter({ hasText: 'is required' });
+        this.errorPetHasInvalidBirthdate = this.helpInline.filter({ hasText: 'invalid date' });
     }
 
     async addPet(pet: PetDto) {

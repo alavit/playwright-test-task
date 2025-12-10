@@ -1,5 +1,6 @@
 import { Page, Locator, expect } from '@playwright/test';
 import { BasePage } from './BasePage';
+import { FindOwnersPage } from './FindOwnersPage';
 import { OwnerDto } from '../models/OwnerDto';
 
 export class AddOwnerPage extends BasePage {
@@ -9,6 +10,9 @@ export class AddOwnerPage extends BasePage {
     readonly cityInput: Locator;
     readonly telephoneInput: Locator;
     readonly addOwnerBtn: Locator;
+    readonly helpInline: Locator;
+    readonly validationErrorShortPhone: Locator;
+    readonly validationErrorEmptyName: Locator;
 
     constructor(page: Page) {
         super(page);
@@ -18,10 +22,15 @@ export class AddOwnerPage extends BasePage {
         this.cityInput = page.locator('#city');
         this.telephoneInput = page.locator('#telephone');
         this.addOwnerBtn = page.getByRole('button', { name: 'Add Owner' });
+        this.helpInline = page.locator('.help-inline');
+        this.validationErrorShortPhone = this.helpInline.filter({ hasText: 'Telephone must be a 10-digit number' });
+        this.validationErrorEmptyName = this.helpInline.filter({ hasText: 'must not be blank' });
     }
 
     async goto() {
-        await this.navigateTo('/owners/new');
+        const findOwnersPage = new FindOwnersPage(this.page);
+        await findOwnersPage.goto();
+        await findOwnersPage.addOwnerBtn.click();
     }
 
     async addOwner(owner: OwnerDto) {
