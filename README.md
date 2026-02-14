@@ -1,4 +1,4 @@
-# Adesso Test Task - Playwright Test Framework
+# Test Task - Playwright Test Framework
 
 This repository contains automated end-to-end tests for the [Spring PetClinic](https://github.com/spring-projects/spring-petclinic) application using [Playwright](https://playwright.dev/).
 
@@ -9,7 +9,7 @@ This repository contains automated end-to-end tests for the [Spring PetClinic](h
 - **Spring PetClinic**: The `spring-petclinic` repository is expected to be a sibling directory to this project.
     ```
     /git
-      /adesso-test-task (this repo)
+      /playwright-test-task (this repo)
       /spring-petclinic (application repo)
     ```
 
